@@ -1,0 +1,71 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "chest",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "router",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      }
+    ],
+    "name": "ChestCreated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "internalType": "contract IPonsFeeEscrow",
+        "name": "escrow",
+        "type": "address"
+      },
+      {
+        "internalType": "uint64",
+        "name": "lockDuration",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint16",
+        "name": "burnBps",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "padBps",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "openerBps",
+        "type": "uint16"
+      }
+    ],
+    "name": "createChest",
+    "outputs": [
+      {
+        "internalType": "contract Chest",
+        "name": "chest",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

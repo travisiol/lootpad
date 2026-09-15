@@ -1,0 +1,593 @@
+@import "tailwindcss";
+
+/*
+ * LOOTPAD — "the treasury".
+ *
+ * A modern fantasy game's menu, kept clean: near-black ground with a violet
+ * depth, one soft violet glow behind the object, thin gold hairlines, and
+ * a lit 3D chest in the hero. Three colours, each with one job:
+ *
+ *   gold    LOOT — value, the allocation, the fees, the one primary button.
+ *   violet  MAGIC — the open chest's light, focus, the "epic" tier.
+ *   ink     plain fact. Titles in Cinzel, everything else in Inter.
+ *
+ * Tiers borrow a game's rarity ladder — iron, silver, violet, gold — and
+ * are the only place those four sit side by side. Market numbers use
+ * up/down and nothing else does. No nebula, no glow that is not cast by
+ * the chest: decoration has to be light coming from somewhere.
+ */
+:root {
+  --void: #0a0812;
+  --void-2: #100c1b;
+  --void-3: #17122a;
+
+  --ink: #f4f0ff;
+  --ink-2: rgba(244, 240, 255, 0.72);
+  --ink-3: rgba(244, 240, 255, 0.5);
+  --ink-4: rgba(244, 240, 255, 0.3);
+
+  --glass: rgba(255, 255, 255, 0.035);
+  --glass-2: rgba(255, 255, 255, 0.065);
+  --edge: rgba(227, 185, 90, 0.16);
+  --edge-2: rgba(227, 185, 90, 0.32);
+  --edge-ink: rgba(244, 240, 255, 0.1);
+
+  --gold: #e3b95a;
+  --gold-hot: #f7d98a;
+  --gold-deep: #9c7420;
+  --gold-soft: rgba(227, 185, 90, 0.12);
+  --gold-glow: rgba(227, 185, 90, 0.35);
+
+  --violet: #9b6dff;
+  --violet-hot: #c9b2ff;
+  --violet-deep: #4c2aa8;
+  --violet-soft: rgba(155, 109, 255, 0.14);
+  --violet-glow: rgba(155, 109, 255, 0.45);
+
+  --iron: #8e8a9c;
+  --silver: #d3d9e8;
+
+  --up: #4ade80;
+  --down: #ff5c6a;
+}
+
+@theme inline {
+  --color-void: var(--void);
+  --color-void-2: var(--void-2);
+  --color-void-3: var(--void-3);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-4: var(--ink-4);
+  --color-glass: var(--glass);
+  --color-glass-2: var(--glass-2);
+  --color-edge: var(--edge);
+  --color-edge-2: var(--edge-2);
+  --color-edge-ink: var(--edge-ink);
+  --color-gold: var(--gold);
+  --color-gold-hot: var(--gold-hot);
+  --color-gold-deep: var(--gold-deep);
+  --color-gold-soft: var(--gold-soft);
+  --color-violet: var(--violet);
+  --color-violet-hot: var(--violet-hot);
+  --color-violet-deep: var(--violet-deep);
+  --color-violet-soft: var(--violet-soft);
+  --color-iron: var(--iron);
+  --color-silver: var(--silver);
+  --color-up: var(--up);
+  --color-down: var(--down);
+
+  --font-display: var(--font-cinzel), "Cinzel", "Trajan Pro", Georgia, serif;
+  --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --radius-card: 20px;
+  --radius-panel: 14px;
+}
+
+/* Everything that touches an element or that a utility must be able to
+   override lives inside a layer: unlayered rules beat every utility. */
+@layer base {
+  * {
+    border-color: var(--edge-ink);
+  }
+
+  html {
+    background: var(--void);
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+
+  /* The ground colour lives on <html>. The body stays transparent so the
+     fixed backdrop behind it can show. */
+  body {
+    background-color: transparent;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  ::selection {
+    background: var(--gold);
+    color: var(--void);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--violet);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--ink-4);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* One glow, top centre, where the chest sits; a faint violet floor far
+     below so long pages do not end in flat black. Fixed, never scrolls. */
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(52vw 46vh at 50% 6%, rgba(155, 109, 255, 0.22), transparent 66%),
+      radial-gradient(70vw 30vh at 50% 108%, rgba(76, 42, 168, 0.18), transparent 64%),
+      var(--void);
+  }
+
+  /* Fine grain so the gradients do not band. */
+  .backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: soft-light;
+  }
+
+  .glass {
+    background: var(--glass);
+    border: 1px solid var(--edge);
+    border-radius: var(--radius-card);
+    backdrop-filter: blur(18px) saturate(130%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 24px 60px -30px rgba(0, 0, 0, 0.8);
+  }
+
+  .panel {
+    background: var(--glass);
+    border: 1px solid var(--edge-ink);
+    border-radius: var(--radius-panel);
+  }
+
+  .panel-gold {
+    background: var(--gold-soft);
+    border: 1px solid var(--edge-2);
+    border-radius: var(--radius-panel);
+  }
+
+  .panel-violet {
+    background: var(--violet-soft);
+    border: 1px solid rgba(155, 109, 255, 0.35);
+    border-radius: var(--radius-panel);
+  }
+
+  .display {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+  }
+
+  .display-wide {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  /* Small mono caps: for eyebrows and table heads only, not body labels. */
+  .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .eyebrow::before,
+  .eyebrow::after {
+    content: "";
+    width: 22px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--edge-2));
+  }
+
+  .eyebrow::after {
+    background: linear-gradient(90deg, var(--edge-2), transparent);
+  }
+
+  /* A gold hairline with a diamond at its centre: the one ornament. */
+  .rule {
+    position: relative;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--edge-2) 30%, var(--edge-2) 70%, transparent);
+  }
+
+  .rule::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    transform: translate(-50%, -50%) rotate(45deg);
+    background: var(--void);
+    border: 1px solid var(--gold);
+  }
+
+  .hairline {
+    height: 1px;
+    background: var(--edge-ink);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 24px;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 1;
+    transition:
+      transform 150ms ease,
+      box-shadow 150ms ease,
+      background-color 150ms ease,
+      border-color 150ms ease,
+      opacity 150ms ease;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+
+  .btn:not(:disabled):active {
+    transform: translateY(1px);
+  }
+
+  .btn-gold {
+    color: #1c1200;
+    background: linear-gradient(180deg, var(--gold-hot), var(--gold) 55%, #c9973a);
+    border: 1px solid rgba(247, 217, 138, 0.7);
+    box-shadow:
+      0 12px 32px -12px var(--gold-glow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
+
+  .btn-gold:not(:disabled):hover {
+    box-shadow:
+      0 16px 40px -12px rgba(227, 185, 90, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  }
+
+  .btn-glass {
+    color: var(--ink);
+    background: var(--glass-2);
+    border: 1px solid var(--edge-ink);
+    backdrop-filter: blur(14px);
+  }
+
+  .btn-glass:not(:disabled):hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--edge-2);
+  }
+
+  .btn-violet {
+    color: var(--ink);
+    background: linear-gradient(180deg, rgba(155, 109, 255, 0.35), rgba(155, 109, 255, 0.18));
+    border: 1px solid rgba(155, 109, 255, 0.5);
+    box-shadow: 0 12px 32px -14px var(--violet-glow);
+  }
+
+  .btn-violet:not(:disabled):hover {
+    background: linear-gradient(180deg, rgba(155, 109, 255, 0.45), rgba(155, 109, 255, 0.24));
+  }
+
+  .btn-sm {
+    padding: 9px 16px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+
+  .field {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid var(--edge-ink);
+    color: var(--ink);
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease;
+  }
+
+  .field:hover {
+    border-color: var(--edge-2);
+  }
+
+  .field:focus {
+    outline: none;
+    border-color: var(--violet);
+    background: rgba(0, 0, 0, 0.42);
+    box-shadow: 0 0 0 3px var(--violet-soft);
+  }
+
+  .field[aria-invalid="true"] {
+    border-color: var(--down);
+  }
+
+  /* Segmented choice (lock, burn share). */
+  .seg {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid var(--edge-ink);
+  }
+
+  .seg-opt {
+    padding: 10px 8px;
+    border-radius: 9px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--ink-3);
+    cursor: pointer;
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
+  }
+
+  .seg-opt:hover {
+    color: var(--ink);
+  }
+
+  .seg-opt[aria-checked="true"] {
+    background: var(--gold);
+    color: #1c1200;
+    font-weight: 500;
+  }
+
+  /* Tier pills: iron, silver, violet, gold. The colour is the tier. */
+  .tier {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-family: var(--font-display);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+    color: var(--tier-color, var(--iron));
+    background: color-mix(in srgb, var(--tier-color, var(--iron)) 10%, transparent);
+  }
+
+  .tier::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    transform: rotate(45deg);
+    background: currentColor;
+  }
+
+  .tier-common {
+    --tier-color: var(--iron);
+  }
+
+  .tier-rare {
+    --tier-color: var(--silver);
+  }
+
+  .tier-epic {
+    --tier-color: var(--violet);
+  }
+
+  .tier-legendary {
+    --tier-color: var(--gold);
+  }
+
+  .tier-legendary::before {
+    box-shadow: 0 0 10px var(--gold);
+  }
+
+  /* Status pills, plain. */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid var(--edge-ink);
+    color: var(--ink-2);
+    background: var(--glass);
+    white-space: nowrap;
+  }
+
+  .pill::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: currentColor;
+  }
+
+  .pill-open {
+    color: var(--violet-hot);
+    border-color: rgba(155, 109, 255, 0.4);
+    background: var(--violet-soft);
+  }
+
+  .pill-open::before {
+    box-shadow: 0 0 10px var(--violet);
+  }
+
+  .pill-loot {
+    color: var(--gold);
+    border-color: rgba(227, 185, 90, 0.4);
+    background: var(--gold-soft);
+  }
+
+  .skeleton {
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--glass) 0%, var(--glass-2) 50%, var(--glass) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+
+  /* The split bar: one bar, four segments, colours by destination. */
+  .split {
+    display: flex;
+    height: 10px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--edge-ink);
+  }
+
+  .split-creator {
+    background: var(--gold);
+  }
+
+  .split-burn {
+    background: var(--violet);
+  }
+
+  .split-pad {
+    background: var(--silver);
+  }
+
+  .split-opener {
+    background: var(--ink-3);
+  }
+
+  /* The reveal: cards rise out of the chest one after another. */
+  .reveal-card {
+    opacity: 0;
+    transform: translateY(28px) scale(0.96);
+    animation: rise 700ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation-delay: var(--delay, 0ms);
+  }
+
+  .reveal-beam {
+    background: linear-gradient(180deg, rgba(155, 109, 255, 0) 0%, rgba(155, 109, 255, 0.35) 40%, rgba(201, 178, 255, 0.55) 100%);
+    filter: blur(14px);
+    opacity: 0;
+    animation: beam 1.4s ease-out forwards;
+  }
+
+  .fade-in {
+    animation: fade 600ms ease-out both;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes rise {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes beam {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.2);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.55;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
